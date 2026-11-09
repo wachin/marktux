@@ -4,3 +4,6 @@
 [submodule "libs/QHotkey"]
 	path = libs/QHotkey
 	url = https://github.com/wachin/QHotkey
+[submodule "libs/m3"]
+	path = libs/m3
+	url = https://github.com/wachin/m3
