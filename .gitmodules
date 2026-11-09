@@ -1,0 +1,3 @@
+[submodule "libs/mtextedit"]
+	path = libs/mtextedit
+	url = https://github.com/wachin/mtextedit
