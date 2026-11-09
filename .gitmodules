@@ -7,3 +7,6 @@
 [submodule "libs/m3"]
 	path = libs/m3
 	url = https://github.com/wachin/m3
+[submodule "libs/vxcore"]
+	path = libs/vxcore
+	url = https://github.com/wachin/vxcore
