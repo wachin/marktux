@@ -1,0 +1,13 @@
+# Runtime dependencies for the marktux application.
+#
+# The editor component in libs/mtextedit has its own pyproject.toml with the
+# same core dependencies; main.py puts libs/mtextedit on sys.path, so installing
+# this file is enough to run the app from a source checkout.
+#
+# Optional:
+#   ripgrep (system package "ripgrep")  -> faster content search backend
+#   libs/mtextedit[webengine,linguistic] -> Chromium HTML preview, spell check
+
+PyQt6>=6.4
+markdown-it-py>=3.0
+pygments>=2.15

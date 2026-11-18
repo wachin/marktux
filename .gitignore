@@ -1,7 +1,33 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
 
+# Virtual environments
+.venv/
+venv/
+env/
 
+# Build and packaging output
+build/
+dist/
+*.egg-info/
+*.egg
 
-# Personal
+# Test and type-checker caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
-# vnote from https://github.com/vnotex/vnote
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Logs
+*.log
+
+# vnote from https://github.com/vnotex/vnote (read-only reference checkout)
 external/vnote/
