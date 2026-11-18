@@ -15,6 +15,32 @@ orientation for humans). Read it before changing code.
 If a task contradicts these documents, say so before implementing; update the
 documents when a decision changes.
 
+## Kickoff prompt
+
+Paste this into a new agent session:
+
+> You are contributing to marktux at `<repository path>`. Read `AGENTS.md`,
+> `ARCHITECTURE.md`, `DESIGN.md` and `libs/mtextedit/DESIGN.md` before changing
+> anything. Establish a baseline by running both suites:
+>
+> ```bash
+> python3 -m unittest discover -s tests -t .
+> (cd libs/mtextedit && python3 -m unittest discover -s tests -t .)
+> ```
+>
+> Follow the non-negotiable rules in `AGENTS.md`: `core/` stays Qt-free,
+> `vx.json` is the source of truth, writes are atomic, paths are contained, and
+> slow work stays off the GUI thread. Do not edit `external/vnote/` or the
+> `libs/*` submodules unless the task requires it. Before reporting success,
+> rerun both suites, update the docs the change affects, and quote the real
+> command output. Ask before pushing or performing destructive or shared-state
+> actions.
+
+For a specific task, append:
+
+> Task: `<what to build or fix>`. Scope: `<files or areas>`. Acceptance:
+> `<observable behaviour and tests>`. Out of scope: `<what not to touch>`.
+
 ## Repository map
 
 ```
