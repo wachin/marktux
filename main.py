@@ -110,6 +110,7 @@ class MainWindow(QMainWindow):
         self.editor = MTextEdit(self)
         self.editor.set_render_manager(self.manager)
         self.editor.set_image_paster(self._paste_image)
+        self.editor.set_image_dialog_enabled(True)
         self.find_replace = FindReplaceWidget(self.editor)
         self.find_replace.hide()
 
