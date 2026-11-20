@@ -14,7 +14,7 @@ It opens existing VNote notebooks unchanged — same `vx_notebook/` layout, same
 |---|---|
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | What exists, layer map, module reference, on-disk formats, threading, key flows, invariants, extension points |
 | [`DESIGN.md`](DESIGN.md) | Backend decision record (C1–C13): why the core is a Python port, formats, Qt-free core, tags, search, workspaces, assets, hardening, opening files |
-| [`libs/mtextedit/DESIGN.md`](libs/mtextedit/DESIGN.md) | Editor decision record (D1–D18): single-pane preview, async rendering, image decoding |
+| [`libs/mtextedit/DESIGN.md`](libs/mtextedit/DESIGN.md) | Editor decision record (D1–D19): single-pane preview, async rendering, image decoding |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Setup, test loop, style, submodules, PR guidance |
 | [`AGENTS.md`](AGENTS.md) | Operating instructions for AI coding agents (and a quick orientation for humans) |
 

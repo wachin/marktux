@@ -12,6 +12,7 @@ editor package in `libs/mtextedit` is **MIT** unless a file says otherwise.
 | cmark (`wachin/cmark`) | BSD-2-Clause | John MacFarlane; our fork of VNote's fork, pinned at `6148f31` |
 | cmarkgfm | MIT | theacodes (A. Jesse Jiryu Davis); fork at `github.com/wachin/cmarkgfm` |
 | ripgrep (optional search backend) | MIT / Unlicense | Andrew Gallant |
+| matplotlib (optional `mtextedit[math]`) | Matplotlib License (BSD-compatible) | Matplotlib Development Team |
 
 The cmark sources are vendored as a git submodule at
 `libs/mtextedit/libs/cmarkgfm/libs/cmark`; its `COPYING` file ships with
