@@ -152,7 +152,8 @@ Development and test tools:
 - **Orca** (GNOME screen reader) and **Accerciser** (AT-SPI inspector) for the
   manual accessibility checks. They are development-only and are exercised
   through **DeepSeek Harness**, not CI. Install with
-  `sudo apt install orca accerciser` and enable toolkit accessibility.
+  `sudo apt install orca accerciser` and enable toolkit accessibility; the
+  step-by-step checklist is in [`ACCESSIBILITY.md`](ACCESSIBILITY.md).
 - `matplotlib` is optional: the math tests skip when it is absent.
 
 ## Tests
