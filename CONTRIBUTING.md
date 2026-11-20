@@ -64,7 +64,7 @@ cd libs/mtextedit && python examples/demo.py   # editor only
 Run the whole suite before every commit:
 
 ```bash
-# core + UI adapter (160 tests)
+# core + UI adapter (164 tests)
 python3 -m unittest discover -s tests -t .
 
 # editor component (10 tests)

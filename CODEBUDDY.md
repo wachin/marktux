@@ -16,7 +16,7 @@ Read [`ARCHITECTURE.md`](ARCHITECTURE.md) before structural work and
 ## Commands
 
 ```bash
-python3 -m unittest discover -s tests -t .            # core + UI (160 tests)
+python3 -m unittest discover -s tests -t .            # core + UI (164 tests)
 (cd libs/mtextedit && python3 -m unittest discover -s tests -t .)   # editor (10)
 ```
 

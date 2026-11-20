@@ -13,8 +13,8 @@ It opens existing VNote notebooks unchanged — same `vx_notebook/` layout, same
 | Document | What it covers |
 |---|---|
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | What exists, layer map, module reference, on-disk formats, threading, key flows, invariants, extension points |
-| [`DESIGN.md`](DESIGN.md) | Backend decision record (C1–C12): why the core is a Python port, formats, Qt-free core, tags, search, workspaces, assets, hardening |
-| [`libs/mtextedit/DESIGN.md`](libs/mtextedit/DESIGN.md) | Editor decision record (D1–D13): single-pane preview, async rendering, image decoding |
+| [`DESIGN.md`](DESIGN.md) | Backend decision record (C1–C13): why the core is a Python port, formats, Qt-free core, tags, search, workspaces, assets, hardening, opening files |
+| [`libs/mtextedit/DESIGN.md`](libs/mtextedit/DESIGN.md) | Editor decision record (D1–D14): single-pane preview, async rendering, image decoding |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Setup, test loop, style, submodules, PR guidance |
 | [`AGENTS.md`](AGENTS.md) | Operating instructions for AI coding agents (and a quick orientation for humans) |
 
@@ -34,6 +34,11 @@ pip install -r requirements.txt
 python main.py                     # open the application
 python main.py /path/to/notebook   # open a notebook directory
 ```
+
+**File → Open Markdown File…** (`Ctrl+O`) opens a single note. If the file is
+inside an already-open notebook that notebook is reused; otherwise its folder
+opens as a raw notebook, so the note gets a real tree entry and core's atomic
+save rather than being edited outside the backend.
 
 Editor component on its own:
 
@@ -161,7 +166,9 @@ Implemented and running headless:
   context menu (new note/folder, rename, duplicate, move, delete, tag); tag dock
   (create/delete/find notes); off-thread search with live result list and cancel;
   restored notebooks and the current buffer reopen on startup; pasting an image
-  stores it as a note asset and inserts a relative Markdown link; `core/` has
+  stores it as a note asset and inserts a relative Markdown link; opening a
+  Markdown file outside a notebook makes its folder a raw notebook (or reuses
+  the notebook that already contains it); `core/` has
   zero Qt imports (enforced by a test).
 * Linguistic download manager + spell-check.
 

@@ -212,6 +212,31 @@ filesystem refuses WAL (SMB/NFS), the store falls back to
 is irreplaceable. Atomic replace plus a sweep makes a crash at any point leave
 either the old or the new file, never a truncated one.
 
+## C13. A standalone Markdown file opens through a notebook
+
+**Decision.** *File → Open Markdown File…* never edits a file as a
+notebook-less document. If the picked file lies inside an **open** notebook
+(bundled or raw), that notebook is reused and the note opens at its
+`/`-separated relative path. Otherwise the file's **folder** is opened as a raw
+notebook and the file opens there as an ordinary note.
+
+**Why.** `BufferManager.open_abs()` can already wrap any absolute path in an
+external buffer, and that is the right primitive for a host with no notebook
+model at all. Here it would be the wrong default: an external buffer has no
+notebook-relative path, no row in the tree, no derived-cache entry and no file
+id, so the search dock, tag dock, rename/duplicate/move and session restore would
+silently not apply to it — the note would be half-first-class. Opening the folder
+as a raw notebook keeps every write on core's atomic save path (C12) and gives
+the note a path-derived `uuid5` id (C2) that survives restarts.
+
+**Consequences.** Picking `~/dir/note.md` turns `~/dir` into a notebook, which
+core also records in the session, so it is still open after a restart. That is
+literal: a file in a huge or inappropriate directory indexes that directory. The
+index build runs on the task pool, so the window stays responsive meanwhile.
+Containment is checked first, so a note inside an already-open bundled notebook
+keeps its tags and `vx.json` identity instead of being shadowed by a raw view of
+the same files.
+
 ## Delivery phases
 
 1. **Foundation + read-only browsing** — config/metadata reads, notebook/folder

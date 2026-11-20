@@ -51,7 +51,14 @@ from mtextedit import (
     RenderManager,
     FindReplaceWidget,
 )
-from core import ContentQuery, CoreContext, CoreError, NodeRef, SearchScope
+from core import (
+    ContentQuery,
+    CoreContext,
+    CoreError,
+    NodeRef,
+    SearchScope,
+    paths,
+)
 from ui import CoreBridge, NotebookNodeModel
 from mtextedit.linguistic import (
     create_service,
@@ -60,16 +67,21 @@ from mtextedit.linguistic import (
     toolkit_error,
 )
 
+# ``Open Markdown File…`` picker filter. The editor renders any UTF-8 text, so a
+# plain "All files" entry stays available next to the Markdown extensions.
+MARKDOWN_FILE_FILTER = "Markdown (*.md *.markdown *.mdown *.mkd);;All files (*)"
+
 
 class MainWindow(QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, ctx: CoreContext | None = None):
         super().__init__(parent)
         self.setWindowTitle("marktux")
         self.resize(1200, 800)
 
         # Core backend + Qt adapter. Core owns config under XDG dirs; the old
-        # ~/.cache/marktux/meta.db is never read.
-        self.ctx = CoreContext().open()
+        # ~/.cache/marktux/meta.db is never read. Tests inject an already-open
+        # context so they never touch the user's real config or session.
+        self.ctx = ctx if ctx is not None else CoreContext().open()
         self.bridge = CoreBridge(self.ctx, self)
         self.notebook_id: str | None = None
         self.notebook_root: str | None = None
@@ -79,6 +91,9 @@ class MainWindow(QMainWindow):
         self._tag_counts: dict[str, int] = {}
         self._search_hits: list[tuple[str, str]] = []
         self._search_query_id = 0
+        # Set while a picked Markdown file waits for its folder to open as a
+        # raw notebook; consumed by ``_on_notebook_opened``.
+        self._pending_markdown: str | None = None
         self._service = None
         self._dict_dialog = None
         self._spell_decorator = None
@@ -202,6 +217,9 @@ class MainWindow(QMainWindow):
     def _build_menu(self):
         f = self.menuBar().addMenu("File")
         f.addAction("Open Notebook…").triggered.connect(self._pick_notebook)
+        open_md = f.addAction("Open Markdown File…")
+        open_md.setShortcut("Ctrl+O")
+        open_md.triggered.connect(self._pick_markdown_file)
         f.addSeparator()
         f.addAction("New Note").triggered.connect(self._new_note)
         f.addAction("New Folder").triggered.connect(self._new_folder)
@@ -236,14 +254,22 @@ class MainWindow(QMainWindow):
 
     # -- core signal handlers ------------------------------------------------
     def _on_core_error(self, op: str, message: str):
+        if op == "open_notebook":
+            # The notebook this file was waiting for never opened.
+            self._pending_markdown = None
         self.statusBar().showMessage(f"{op}: {message}")
         QMessageBox.warning(self, op.replace("_", " ").title(), message)
 
     def _on_notebook_opened(self, info):
-        self.tree_model.add_notebook(info)
+        self._adopt_notebook(info)
+        self.statusBar().showMessage(f"Opened {info.name} ({info.type})")
+        self._open_pending_markdown(info)
+
+    def _adopt_notebook(self, info):
+        """Make ``info`` the notebook the tree and tag dock follow."""
+        self.tree_model.add_notebook(info)  # no-op when already in the model
         self.notebook_id = info.id
         self.notebook_root = info.root
-        self.statusBar().showMessage(f"Opened {info.name} ({info.type})")
         self.bridge.list_tags(info.id)
         self.bridge.tag_counts(info.id)
 
@@ -360,6 +386,49 @@ class MainWindow(QMainWindow):
         self.notebook_root = root
         self.statusBar().showMessage(f"Opening {root}…")
         self.bridge.open_notebook(root)
+
+    # -- open a standalone Markdown file ------------------------------------
+    def _pick_markdown_file(self):
+        start = self.notebook_root or os.path.expanduser("~")
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Open Markdown File", start, MARKDOWN_FILE_FILTER)
+        if path:
+            self.open_markdown_file(path)
+
+    def open_markdown_file(self, path: str):
+        """Load ``path`` into the editor, notebook-aware.
+
+        A file already inside an open notebook opens through that notebook, so
+        its bundled metadata, tags and ``/``-separated relative path apply.
+        Otherwise the file's folder is opened as a *raw* notebook: the open then
+        goes through core's own code path (path-derived ids, derived cache,
+        atomic save) instead of editing the file behind the backend's back.
+        """
+        target = os.path.realpath(os.path.abspath(os.path.expanduser(path)))
+        if not os.path.isfile(target):
+            self.statusBar().showMessage(f"Not a file: {path}")
+            return
+        resolved = self.ctx.notebooks.resolve_path(target)
+        if resolved is not None:
+            notebook, rel = resolved
+            self._adopt_notebook(notebook.info())
+            self._open_file(notebook.id, rel)
+            return
+        # ``NotebookManager.open`` is idempotent per root and runs on the task
+        # pool; the file is loaded once ``notebookOpened`` reports it open.
+        self._pending_markdown = target
+        self.open_notebook(os.path.dirname(target))
+
+    def _open_pending_markdown(self, info):
+        """Consume a file that was waiting for its folder to open."""
+        target, self._pending_markdown = self._pending_markdown, None
+        if not target:
+            return
+        if not paths.is_inside(info.root, target):
+            self.statusBar().showMessage(
+                f"{os.path.basename(target)} is outside {info.name}")
+            return
+        self._open_file(info.id, paths.relative_to(info.root, target))
 
     # -- navigation ---------------------------------------------------------
     def _on_tree_activated(self, index):

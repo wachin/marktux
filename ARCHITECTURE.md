@@ -221,6 +221,17 @@ is read lazily on the first `content()` call. The buffer tracks encoding, BOM,
 line ending, revision, dirty flag and a state
 (`NORMAL` / `FILE_CHANGED` / `FILE_MISSING` / `SAVE_FAILED`).
 
+### Open a standalone Markdown file
+
+`File → Open Markdown File…` (`Ctrl+O`) calls `MainWindow.open_markdown_file`:
+the picked path is resolved with `NotebookManager.resolve_path()`. Inside an
+**open** notebook it is adopted and opened at its notebook-relative path;
+otherwise the file's folder is opened as a **raw** notebook on the task pool and
+the file is loaded when `notebookOpened` arrives (a failed open clears it). The
+editor therefore always edits a file that belongs to a notebook; core's
+`open_abs()` external-buffer path is deliberately not used by the app (see
+[`DESIGN.md` C13](DESIGN.md)).
+
 ### Edit and save
 
 Editor text → `buffer.set_content()` (revision++, dirty) → `buffer.save()`:
@@ -300,7 +311,7 @@ These are enforced by tests; do not weaken them without updating the docs.
 
 | Suite | Command | Notes |
 |---|---|---|
-| Core + UI | `python3 -m unittest discover -s tests -t .` | 160 tests; Qt tests run offscreen |
+| Core + UI | `python3 -m unittest discover -s tests -t .` | 164 tests; Qt tests run offscreen |
 | Core only | `python3 -m unittest discover -s tests/core -t .` | No Qt import |
 | UI only | `QT_QPA_PLATFORM=offscreen python3 -m unittest discover -s tests/ui -t .` | `QCoreApplication` |
 | Editor | `cd libs/mtextedit && python3 -m unittest discover -s tests -t .` | 10 tests |

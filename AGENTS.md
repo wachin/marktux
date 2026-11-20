@@ -7,9 +7,9 @@ orientation for humans). Read it before changing code.
 
 1. [`ARCHITECTURE.md`](ARCHITECTURE.md) — what exists, how layers connect,
    invariants, extension points.
-2. [`DESIGN.md`](DESIGN.md) — why the backend is shaped this way (C1–C12).
+2. [`DESIGN.md`](DESIGN.md) — why the backend is shaped this way (C1–C13).
 3. [`libs/mtextedit/DESIGN.md`](libs/mtextedit/DESIGN.md) — editor decisions
-   (D1–D13).
+   (D1–D14).
 4. [`CONTRIBUTING.md`](CONTRIBUTING.md) — setup, style, commit conventions.
 
 If a task contradicts these documents, say so before implementing; update the
