@@ -76,7 +76,9 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None, ctx: CoreContext | None = None,
                  settings: QSettings | None = None):
         super().__init__(parent)
-        self.setWindowTitle("marktux")
+        self.setWindowTitle("MarkTux")
+        self.setAccessibleName("MarkTux")
+        self.setAccessibleDescription("Markdown notebook editor")
         self.resize(1200, 800)
 
         # Core backend + Qt adapter. Core owns config under XDG dirs; the old
@@ -814,6 +816,9 @@ class MainWindow(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
+    app.setApplicationName("MarkTux")
+    app.setApplicationDisplayName("MarkTux")
+    app.setOrganizationName("marktux")
     win = MainWindow()
     app.aboutToQuit.connect(win._shutdown_linguistic)
     app.aboutToQuit.connect(win._shutdown_core)

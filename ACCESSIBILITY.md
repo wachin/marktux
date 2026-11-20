@@ -22,6 +22,21 @@ gsettings set org.gnome.desktop.interface toolkit-accessibility true
 2. Start Accerciser and select the MarkTux window in its application list.
 3. Start Orca and focus the editor.
 
+## Expected hierarchy
+
+Accerciser should show:
+
+```
+MarkTux (application)
+  └─ MarkTux (window)
+       └─ Markdown editor (editable text)
+```
+
+If the top node still reads `main.py`, that is the Python process node: expand
+it to reach the `MarkTux` window and the `Markdown editor` text widget. The
+window and application names are set in `main()`; the editor sets its name in
+`MTextEdit.__init__`.
+
 ## Checklist
 
 ### Editor

@@ -61,7 +61,8 @@ app = QApplication([])
 settings = QSettings(settings_path, QSettings.Format.IniFormat)
 win = app_main.MainWindow(ctx=ctx, settings=settings)
 
-out = {"menu": [a.text() for a in win.menuBar().actions()[0].menu().actions()]}
+out = {"menu": [a.text() for a in win.menuBar().actions()[0].menu().actions()],
+       "window_name": win.accessibleName()}
 
 # 1) A file outside every notebook: its folder opens as a raw notebook.
 win.open_markdown_file(raw_file)
@@ -157,6 +158,9 @@ class OpenMarkdownFileTest(unittest.TestCase):
                 "\n".join(process.stderr.splitlines()[-15:]),
             )
         )
+
+    def test_window_exposes_its_accessible_name(self):
+        self.assertEqual(self._run_driver()["window_name"], "MarkTux")
 
     def test_file_menu_offers_open_markdown_file(self):
         self.assertIn("Open Markdown File…", self._run_driver()["menu"])
