@@ -14,7 +14,7 @@ editor package in `libs/mtextedit` is **MIT** unless a file says otherwise.
 | ripgrep (optional search backend) | MIT / Unlicense | Andrew Gallant |
 
 The cmark sources are vendored as a git submodule at
-`libs/mtextedit/libs/cmarkgfm/third_party/cmark`; its `COPYING` file ships with
+`libs/mtextedit/libs/cmarkgfm/libs/cmark`; its `COPYING` file ships with
 the submodule, and the binding's `LICENSE.txt` ships with `cmarkgfm`.
 
 ## Reference only
