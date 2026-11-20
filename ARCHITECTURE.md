@@ -34,7 +34,8 @@ guarantees. The UI is functional but deliberately small; see
 * VNote's sync, encryption, recycle bin, cross-notebook transfer, snippets,
   templates, mobile API and C ABI.
 * A side-by-side preview pane or a `QWebEngineView` reload per keystroke.
-* A second Markdown dialect: parsing is `markdown-it-py` with a fixed preset.
+* A second Markdown dialect: parsing is VNote's cmark fork (`vnotex/cmark`), fixed
+  and not configurable.
 
 ## 3. System map
 
@@ -73,7 +74,7 @@ imports `core/`.
 | Composition root | `main.py` | PyQt6, `core`, `ui`, `mtextedit` | Window, menus, docks, wiring signals, restoring the last buffer |
 | Qt adapter | `ui/` | PyQt6, `core` | Submit slow core calls to the task pool; re-emit results as signals; lazy tree model |
 | Backend | `core/` | Python stdlib only | Notebooks, folders, buffers, metadata, tags, search, workspaces, assets |
-| Editor | `libs/mtextedit/` | PyQt6, `markdown-it-py`, `pygments` | Single-pane editor, async renderer, in-place preview, outline, find/replace |
+| Editor | `libs/mtextedit/` | PyQt6, `cmarkgfm` (VNote's cmark), `pygments` | Single-pane editor, async renderer, in-place preview, outline, find/replace |
 
 `main.py` puts `libs/mtextedit` on `sys.path` before importing `mtextedit`
 (`main.py:26-27`), so no install step is required for the application. The

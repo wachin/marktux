@@ -9,5 +9,5 @@
 #   libs/mtextedit[webengine,linguistic] -> Chromium HTML preview, spell check
 
 PyQt6>=6.4
-markdown-it-py>=3.0
+cmarkgfm @ git+https://github.com/wachin/cmarkgfm@8961e9acf0be2fae5dfc71f8fd7378ce1fc47dd4
 pygments>=2.15

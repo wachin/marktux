@@ -86,8 +86,8 @@ It has no dependency on `core/`.
 
 ## Why it is fast (vs VNote)
 
-* The Markdown parse (`markdown-it-py`) runs on a `QThreadPool` worker, never the
-  GUI thread.
+* The Markdown parse (VNote's cmark, via `cmarkgfm`) runs on a `QThreadPool`
+  worker, never the GUI thread.
 * `RenderManager` debounces and **coalesces** edits and uses a generation token
   so only the newest render produces UI output; stale in-flight parses abort.
 * The editor is a **single pane** with VNote-style **in-place preview**: code

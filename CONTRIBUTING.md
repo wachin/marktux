@@ -39,7 +39,8 @@ pip install -r requirements.txt
 ```
 
 `requirements.txt` installs the three runtime dependencies (`PyQt6`,
-`markdown-it-py`, `pygments`). The editor component is used directly from
+`cmarkgfm` (VNote's cmark) and `pygments`). The editor component is used directly
+from
 `libs/mtextedit` by `main.py`; installing it separately is only needed if you
 embed it elsewhere:
 
