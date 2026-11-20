@@ -38,7 +38,9 @@ python main.py /path/to/notebook   # open a notebook directory
 **File → Open Markdown File…** (`Ctrl+O`) opens a single note. If the file is
 inside an already-open notebook that notebook is reused; otherwise its folder
 opens as a raw notebook, so the note gets a real tree entry and core's atomic
-save rather than being edited outside the backend.
+save rather than being edited outside the backend. The last opened file is
+remembered in `QSettings` (`~/.config/marktux/marktux.conf`) and reopened at
+startup; if it no longer exists, the remembered path is dropped.
 
 Editor component on its own:
 

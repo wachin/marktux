@@ -26,7 +26,7 @@ import time
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(ROOT, "libs", "mtextedit"))
 
-from PyQt6.QtCore import QBuffer, QByteArray, QIODevice, Qt
+from PyQt6.QtCore import QBuffer, QByteArray, QIODevice, QSettings, Qt
 from PyQt6.QtWidgets import (
     QApplication,
     QDockWidget,
@@ -73,7 +73,8 @@ MARKDOWN_FILE_FILTER = "Markdown (*.md *.markdown *.mdown *.mkd);;All files (*)"
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, parent=None, ctx: CoreContext | None = None):
+    def __init__(self, parent=None, ctx: CoreContext | None = None,
+                 settings: QSettings | None = None):
         super().__init__(parent)
         self.setWindowTitle("marktux")
         self.resize(1200, 800)
@@ -82,6 +83,11 @@ class MainWindow(QMainWindow):
         # ~/.cache/marktux/meta.db is never read. Tests inject an already-open
         # context so they never touch the user's real config or session.
         self.ctx = ctx if ctx is not None else CoreContext().open()
+        # Tests inject a context and must not inherit the user's last file;
+        # the desktop entry point gets the real settings store.
+        self._settings = settings
+        if self._settings is None and ctx is None:
+            self._settings = QSettings("marktux", "marktux")
         self.bridge = CoreBridge(self.ctx, self)
         self.notebook_id: str | None = None
         self.notebook_root: str | None = None
@@ -408,6 +414,7 @@ class MainWindow(QMainWindow):
         if not os.path.isfile(target):
             self.statusBar().showMessage(f"Not a file: {path}")
             return
+        self._remember_last_file(target)
         resolved = self.ctx.notebooks.resolve_path(target)
         if resolved is not None:
             notebook, rel = resolved
@@ -418,6 +425,26 @@ class MainWindow(QMainWindow):
         # pool; the file is loaded once ``notebookOpened`` reports it open.
         self._pending_markdown = target
         self.open_notebook(os.path.dirname(target))
+
+    def _remember_last_file(self, path: str) -> None:
+        if self._settings is None:
+            return
+        self._settings.setValue("last_markdown_file", path)
+        self._settings.sync()
+
+    def restore_last_file(self) -> bool:
+        """Reopen the last Markdown file from settings, if it still exists."""
+        if self._settings is None:
+            return False
+        path = self._settings.value("last_markdown_file", "")
+        if not isinstance(path, str) or not path:
+            return False
+        if not os.path.isfile(path):
+            self._settings.remove("last_markdown_file")
+            self._settings.sync()
+            return False
+        self.open_markdown_file(path)
+        return True
 
     def _open_pending_markdown(self, info):
         """Consume a file that was waiting for its folder to open."""
@@ -790,6 +817,7 @@ def main():
     app.aboutToQuit.connect(win._shutdown_linguistic)
     app.aboutToQuit.connect(win._shutdown_core)
     win.show()
+    win.restore_last_file()
     sys.exit(app.exec())
 
 

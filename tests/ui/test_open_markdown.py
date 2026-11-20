@@ -32,11 +32,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 
 DRIVER = r'''
 import json, os, sys, time
-root, app_dir, local_dir = sys.argv[1], sys.argv[2], sys.argv[3]
-raw_file, bundled_file, bundled_root, missing = sys.argv[4:8]
+root, app_dir, local_dir, settings_path = (sys.argv[1], sys.argv[2],
+                                           sys.argv[3], sys.argv[4])
+raw_file, bundled_file, bundled_root, missing = sys.argv[5:9]
 sys.path.insert(0, root)
 
-from PyQt6.QtCore import QEventLoop, QTimer
+from PyQt6.QtCore import QEventLoop, QSettings, QTimer
 from PyQt6.QtWidgets import QApplication
 import main as app_main
 from core import CoreContext
@@ -57,7 +58,8 @@ def wait_for(predicate, timeout_ms=15000):
 ctx = CoreContext(app_data_dir=app_dir, local_data_dir=local_dir,
                   recover_session=False).open()
 app = QApplication([])
-win = app_main.MainWindow(ctx=ctx)
+settings = QSettings(settings_path, QSettings.Format.IniFormat)
+win = app_main.MainWindow(ctx=ctx, settings=settings)
 
 out = {"menu": [a.text() for a in win.menuBar().actions()[0].menu().actions()]}
 
@@ -85,6 +87,17 @@ pump(300)
 out["editor_after_missing"] = win.editor.toPlainText()
 out["status_after_missing"] = win.statusBar().currentMessage()
 
+win.open_markdown_file(raw_file)
+wait_for(lambda: win.editor.toPlainText() == "# Raw\n")
+out["last_path"] = settings.value("last_markdown_file")
+
+# Restore the last path into the same window (a restart creates a new one).
+settings.setValue("last_markdown_file", raw_file)
+settings.sync()
+out["restore_started"] = win.restore_last_file()
+out["restored"] = wait_for(
+    lambda: win.editor.toPlainText() == "# Raw\n")
+out["restored_text"] = win.editor.toPlainText()
 win.close()
 app.quit()
 print("__RESULT__" + json.dumps(out))
@@ -122,6 +135,7 @@ class OpenMarkdownFileTest(unittest.TestCase):
         args = [
             sys.executable, "-c", DRIVER, ROOT,
             os.path.join(self.tmp, "app"), os.path.join(self.tmp, "local"),
+            os.path.join(self.tmp, "settings.ini"),
             self.raw_file, self.bundled_file, self.bundled_root, self.missing,
         ]
         try:
@@ -160,6 +174,13 @@ class OpenMarkdownFileTest(unittest.TestCase):
         self.assertEqual(result["bundled_counts"][0],
                          result["bundled_counts"][1])
         self.assertEqual(result["bundled_editor"], "# Hello\n\nBody text.\n")
+
+    def test_last_file_is_remembered_and_reopened(self):
+        result = self._run_driver()
+        self.assertEqual(result["last_path"], os.path.realpath(self.raw_file))
+        self.assertTrue(result["restore_started"])
+        self.assertTrue(result["restored"])
+        self.assertEqual(result["restored_text"], "# Raw\n")
 
     def test_non_file_path_leaves_the_editor_untouched(self):
         result = self._run_driver()
