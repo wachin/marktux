@@ -332,8 +332,7 @@ Not implemented, in rough priority order:
   multi-window support, no export/print.
 * **Packaging**: the application has no `pyproject.toml` or installer; it runs
   from the repository (`python main.py`). `mtextedit` is packaged.
-* **Editor roadmap**: KaTeX math preview, Obsidian-style inline rendering,
-  richer code-block highlighting.
+* **Editor roadmap**: KaTeX math preview, Obsidian-style inline rendering.
 * **Platform coverage**: developed and tested on Linux; Windows/macOS paths are
   implemented but not exercised in CI.
 

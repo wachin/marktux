@@ -145,7 +145,8 @@ Focused runs and the `-t .` gotcha are covered in
 Implemented and running headless:
 
 * **Editor** (`mtextedit`): single-pane in-place preview (code/tables/images),
-  async renderer with debounce/coalesce/cancel, off-thread image decode with a
+  async renderer with debounce/coalesce/cancel, token-coloured code blocks
+  (Pygments, computed off-thread), off-thread image decode with a
   configurable LRU cache, AST outline, find/replace.
 * **Core port** (phases 1–8): Qt-free `vxcore`-compatible backend — bundled +
   raw notebooks, `vx.json` tree, per-notebook SQLite cache (schema v4, rebuilt
@@ -177,8 +178,7 @@ Not yet implemented:
 * Workspace switching in the UI (workspaces exist in core; the current one is
   restored), settings dialog, recent-notebooks list, multi-window, export/print.
 * Application packaging/installer — run from a source checkout for now.
-* Editor roadmap: KaTeX math preview, Obsidian-style inline rendering, richer
-  code-block highlighting.
+* Editor roadmap: KaTeX math preview, Obsidian-style inline rendering.
 * Windows/macOS are implemented but not exercised in CI (Linux is).
 
 See [`ARCHITECTURE.md` §12](ARCHITECTURE.md#12-known-gaps) for details and
