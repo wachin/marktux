@@ -129,6 +129,32 @@ decisions are in [`DESIGN.md`](DESIGN.md); the short version:
 * **Optional, not default:** `QWebEngineView` preview and the linguistic
   toolkit's heavy engines are loaded only on demand.
 
+## Development
+
+Runtime: Python 3.10+, PyQt6, Pygments and the pinned `cmarkgfm` fork. The
+cmark parser is C: a source install needs a C compiler, Python headers and
+`cffi`, which build `_cmark.abi3.so` (CI produces wheels).
+
+Optional runtime extras:
+
+- `libs/mtextedit[math]` — matplotlib; renders inline and block formulas. Without
+  it the TeX source stays visible.
+- `libs/mtextedit[webengine]` / `[linguistic]` — Chromium HTML preview and the
+  spell-check/thesaurus service.
+- `ripgrep` — faster content-search backend.
+
+Development and test tools:
+
+- Python `unittest` for both suites (no pytest needed), run with
+  `QT_QPA_PLATFORM=offscreen`.
+- `ruff` for lint.
+- `git` plus the `libs/mtextedit`, `cmarkgfm` and `cmark` submodules.
+- **Orca** (GNOME screen reader) and **Accerciser** (AT-SPI inspector) for the
+  manual accessibility checks. They are development-only and are exercised
+  through **DeepSeek Harness**, not CI. Install with
+  `sudo apt install orca accerciser` and enable toolkit accessibility.
+- `matplotlib` is optional: the math tests skip when it is absent.
+
 ## Tests
 
 ```bash

@@ -7,6 +7,11 @@
 # Optional:
 #   ripgrep (system package "ripgrep")  -> faster content search backend
 #   libs/mtextedit[webengine,linguistic] -> Chromium HTML preview, spell check
+#   libs/mtextedit[math]                -> matplotlib inline/block formulas
+#
+# Development-only (not installed by this file): C compiler + Python headers
+# + cffi (build cmarkgfm), ruff, git submodules, Orca + Accerciser (manual
+# accessibility, exercised through DeepSeek Harness).
 
 PyQt6>=6.4
 cmarkgfm @ git+https://github.com/wachin/cmarkgfm@e28bfe3f2fdf0db3c61ee8a2b481cb218507ded5
