@@ -9,7 +9,7 @@ orientation for humans). Read it before changing code.
    invariants, extension points.
 2. [`DESIGN.md`](DESIGN.md) — why the backend is shaped this way (C1–C13).
 3. [`libs/mtextedit/DESIGN.md`](libs/mtextedit/DESIGN.md) — editor decisions
-   (D1–D16).
+   (D1–D18).
 4. [`CONTRIBUTING.md`](CONTRIBUTING.md) — setup, style, commit conventions.
 
 If a task contradicts these documents, say so before implementing; update the
