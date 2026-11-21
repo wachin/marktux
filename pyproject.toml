@@ -24,3 +24,12 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["marktux*"]
+
+[tool.setuptools.package-data]
+"marktux.core" = [
+    "icons/*",
+    "logo/*",
+    "logo/*/*",
+    "translations/*",
+    "LICENSES/*",
+]

@@ -238,6 +238,13 @@ vendored toolkit (or honours `MARKTUX_LINGUISTIC_TOOLKIT`).
 Contributions are welcome. Start with [`CONTRIBUTING.md`](CONTRIBUTING.md);
 if you work with an AI agent, point it at [`AGENTS.md`](AGENTS.md).
 
+## Acknowledgements
+
+The UI icons, logo and translation catalogs under `src/marktux/core/` are
+reused from [VNote](https://github.com/vnotex/vnote) (LGPL-3.0); most icons are
+Lucide-derived (ISC). See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and
+the per-directory notes in `src/marktux/core/` for provenance and license texts.
+
 ## License
 
 marktux is released under the **GNU General Public License v3.0**; see

@@ -18,13 +18,37 @@ The cmark sources are vendored as a git submodule at
 `libs/mtextedit/libs/cmarkgfm/libs/cmark`; its `COPYING` file ships with
 the submodule, and the binding's `LICENSE.txt` ships with `cmarkgfm`.
 
-## Reference only
+## VNote assets
 
-`external/vnote/` is a checkout of VNote (**LGPL-3.0**) kept for research and
-comparison. No VNote source code is copied into this repository.
+These assets were copied from VNote at commit
+`c966a995044f975d92a59453ec46738bce0e8282`:
 
-One data file is bundled with attribution: `libs/mtextedit/mtextedit/themes/native.theme`
-is VNote's **Native** editor theme, copied unmodified from
+| Local path | Upstream path |
+|---|---|
+| `src/marktux/core/icons/` | `src/data/core/icons/` |
+| `src/marktux/core/logo/` | `src/data/core/logo/` |
+| `src/marktux/core/translations/` | `src/data/core/translations/` |
+
+They are redistributed with attribution:
+
+- **VNote**, its logo and its translation catalogs: **LGPL-3.0**, copyright
+  the VNote authors.
+- **Icons derived from Lucide**: **ISC**, copyright Lucide contributors (and
+  Feather contributors for the inherited icons). Most files in `icons/` fall
+  into this group; VNote's per-icon mapping is linked from
+  [`src/marktux/core/icons/README.md`](src/marktux/core/icons/README.md).
+
+The full license texts and per-directory provenance notes ship with the assets
+in [`src/marktux/core/LICENSES/`](src/marktux/core/LICENSES/). The files are
+copied unmodified; MarkTux does not claim authorship of them, and the VNote
+name/logo does not imply endorsement.
+
+`external/vnote/` remains a read-only checkout (**LGPL-3.0**) kept for research
+and comparison. No VNote source code is copied into MarkTux.
+
+One editor data file is bundled with attribution:
+`libs/mtextedit/src/mtextedit/themes/native.theme` is VNote's **Native** editor
+theme, copied unmodified from
 `src/data/extra/themes/native/text-editor.theme` and redistributed under
 **LGPL-3.0** (copyright the VNote authors). `mtextedit` itself remains MIT; that
 file keeps its own license. The theme loader is original code.
