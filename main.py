@@ -24,7 +24,7 @@ import sys
 import time
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(ROOT, "libs", "mtextedit"))
+sys.path.insert(0, os.path.join(ROOT, "libs", "mtextedit", "src"))
 
 from PyQt6.QtCore import QBuffer, QByteArray, QIODevice, QSettings, Qt
 from PyQt6.QtWidgets import (
