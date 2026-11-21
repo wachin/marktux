@@ -13,7 +13,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from core import (
+from marktux.core import (
     FileTypesConfig,
     InvalidNameError,
     NodeNotFoundError,

@@ -24,7 +24,7 @@ guarantees. The UI is functional but deliberately small; see
 * Open existing VNote notebooks unchanged (same files, same `vx.json` schema).
 * Keep the GUI responsive: no Markdown parse, image decode, disk scan or
   content search on the GUI thread.
-* Keep the backend reusable: `core/` must import **no** Qt and must be testable
+* Keep the backend reusable: `src/marktux/core/` must import **no** Qt and must be testable
   headless.
 * Keep the editor reusable: `mtextedit` is a standalone package with its own
   `pyproject.toml`, usable in another PyQt6 application.
@@ -40,45 +40,33 @@ guarantees. The UI is functional but deliberately small; see
 ## 3. System map
 
 ```
-┌──────────────────────────────────────────────────────────────────────┐
-│ main.py — composition root                                           │
-│   QMainWindow: notebook tree, editor, outline, tag dock, search dock │
-└───────────────┬───────────────────────────────┬──────────────────────┘
-                │ Qt signals/slots              │ direct widget API
-┌───────────────▼──────────────┐   ┌────────────▼─────────────────────┐
-│ ui/ — thin Qt adapter        │   │ libs/mtextedit — editor package  │
-│   CoreBridge(QObject)        │   │   MTextEdit, OutlineView,        │
-│   NotebookNodeModel          │   │   RenderManager, FindReplace     │
-└───────────────┬──────────────┘   └────────────┬─────────────────────┘
-                │ Python calls (off-thread)      │ Qt only
-┌───────────────▼────────────────────────────────▼─────────────────────┐
-│ core/ — Qt-free backend (stdlib only)                                │
-│   CoreContext → config · events · tasks · notebooks · buffers ·      │
-│                 workspaces · watchdog                                │
-└───────────────┬──────────────────────────────────────────────────────┘
-                │ filesystem + SQLite
-┌───────────────▼──────────────────────────────────────────────────────┐
-│ On disk: vx_notebook/config.json, contents/**/vx.json, note files,   │
-│          <local-data>/notebooks/<id>/metadata.db, vxsession.json     │
-└──────────────────────────────────────────────────────────────────────┘
+src/marktux/app.py  — composition root (QMainWindow + wiring)
+        │
+        ├── src/marktux/ui/   — Qt adapter (CoreBridge, NotebookNodeModel)
+        │        │
+        │        └── src/marktux/core/  — Qt-free backend (stdlib only)
+        │
+        └── libs/mtextedit/  — editor submodule (src/mtextedit)
 ```
 
-Import direction is one-way: `main.py` → `ui/` → `core/`, and `main.py` →
-`mtextedit`. `core/` never imports `ui/`, `main`, or PyQt6. `mtextedit` never
-imports `core/`.
+Import direction is one-way: `src/marktux/app.py` → `src/marktux/ui/` →
+`src/marktux/core/`, and `app.py` → `mtextedit`. `src/marktux/core/` never imports
+`src/marktux/ui/`, the application, or PyQt6. `mtextedit` never imports
+`src/marktux/core/`.
 
 ## 4. Layers
 
 | Layer | Location | May import | Responsibility |
 |---|---|---|---|
-| Composition root | `main.py` | PyQt6, `core`, `ui`, `mtextedit` | Window, menus, docks, wiring signals, restoring the last buffer |
-| Qt adapter | `ui/` | PyQt6, `core` | Submit slow core calls to the task pool; re-emit results as signals; lazy tree model |
-| Backend | `core/` | Python stdlib only | Notebooks, folders, buffers, metadata, tags, search, workspaces, assets |
+| Composition root | `src/marktux/app.py` | PyQt6, `marktux.core`, `marktux.ui`, `mtextedit` | Window, menus, docks, wiring signals, restoring the last buffer |
+| Qt adapter | `src/marktux/ui/` | PyQt6, `marktux.core` | Submit slow core calls to the task pool; re-emit results as signals; lazy tree model |
+| Backend | `src/marktux/core/` | Python stdlib only | Notebooks, folders, buffers, metadata, tags, search, workspaces, assets |
 | Editor | `libs/mtextedit/` | PyQt6, `cmarkgfm` (VNote's cmark), `pygments` | Single-pane editor, async renderer, in-place preview, outline, find/replace |
 
-`main.py` puts `libs/mtextedit` on `sys.path` before importing `mtextedit`
-(`main.py:26-27`), so no install step is required for the application. The
-editor can also be installed on its own (`pip install -e libs/mtextedit`).
+`src/marktux/app.py` adds `libs/mtextedit/src` to `sys.path` only when that
+checkout exists. For an installed MarkTux, install the editor separately
+(`pip install -e libs/mtextedit`); the editor remains a git submodule and is
+not bundled into MarkTux's wheel.
 
 ## 5. Core module reference
 
@@ -101,7 +89,7 @@ editor can also be installed on its own (`pip install -e libs/mtextedit`).
 | `concurrency.py` | `CancellationToken`, `Task`, `TaskRunner`, `BufferWatchdog` |
 | `errors.py` | `CoreError` hierarchy with stable `code` strings |
 
-Everything a caller needs is re-exported from `core/__init__.py`.
+Everything a caller needs is re-exported from `src/marktux/core/__init__.py`.
 
 ## 6. Data model and on-disk formats
 
@@ -179,7 +167,7 @@ Tables: `folders`, `files`, `tags`, `file_tags`, `notebook_metadata`,
 | Worker | Where | What runs there |
 |---|---|---|
 | GUI thread | Qt | Widgets, painting, signal delivery. Never disk scans, parses, decodes or searches. |
-| `TaskRunner` pool | `core/concurrency.py` | Slow core calls submitted by `CoreBridge._submit`; default 3 workers; each task carries a `CancellationToken` |
+| `TaskRunner` pool | `src/marktux/core/concurrency.py` | Slow core calls submitted by `CoreBridge._submit`; default 3 workers; each task carries a `CancellationToken` |
 | `BufferWatchdog` | daemon thread | Polls `buffers.check_external_changes()` every 1.5 s and emits state events |
 | Render pool | `mtextedit.renderer` | Markdown parse/highlight (`QRunnable` on `QThreadPool`); generation token discards stale results |
 | Image decode | render worker | Decoding happens off-thread; the GUI only wraps the finished `QImage` in a `QPixmap` |
@@ -276,7 +264,7 @@ into the session file.
 
 These are enforced by tests; do not weaken them without updating the docs.
 
-1. **`core/` imports no Qt.** `tests/core/test_phase1.py` AST-scans every module.
+1. **`src/marktux/core/` imports no Qt.** `tests/core/test_phase1.py` AST-scans every module.
 2. **The cache is disposable.** Anything in `metadata.db` must be re-derivable
    from `vx.json`/config, except `notebook_metadata`.
 3. **Every file write is atomic.** Config, notes, backups and cache-adjacent
@@ -294,19 +282,19 @@ These are enforced by tests; do not weaken them without updating the docs.
 ## 10. Extension points
 
 * **New file type** — add an entry to `FileTypesConfig.defaults()` in
-  `core/models.py`; `by_suffix`/`by_name` and the `Others` fallback do the rest.
-* **New search backend** — implement `SearchBackend` in `core/search.py`
+  `src/marktux/core/models.py`; `by_suffix`/`by_name` and the `Others` fallback do the rest.
+* **New search backend** — implement `SearchBackend` in `src/marktux/core/search.py`
   (`search_file`, `available`), register it in the configured backend list;
   emit `search.backend_fallback` if it becomes unavailable.
 * **New core capability** — add a manager module, construct it in
-  `CoreContext`, expose it from `core/__init__.py`, add bridge methods in
-  `ui/core_bridge.py` if the UI needs it, and write tests under `tests/core/`.
+  `CoreContext`, expose it from `src/marktux/core/__init__.py`, add bridge methods in
+  `src/marktux/ui/core_bridge.py` if the UI needs it, and write tests under `tests/core/`.
 * **New UI panel** — subscribe to core events through `CoreBridge`; never call
   slow core methods on the GUI thread.
 * **New editor feature** — implement it inside `libs/mtextedit` with its own
   tests and a decision entry in `libs/mtextedit/DESIGN.md`. The editor must stay
   notebook-agnostic; use host hooks (for example `set_image_paster`) instead of
-  importing `core/`.
+  importing `src/marktux/core/`.
 
 ## 11. Testing
 
@@ -332,7 +320,8 @@ Not implemented, in rough priority order:
   current one is restored), no settings dialog, no recent-notebooks list, no
   multi-window support, no export/print.
 * **Packaging**: the application has no `pyproject.toml` or installer; it runs
-  from the repository (`python main.py`). `mtextedit` is packaged.
+  from the repository (`python main.py`); `mtextedit` remains a git submodule
+and is installed separately.
 * **Editor roadmap**: KaTeX math preview, Obsidian-style inline rendering.
 * **Platform coverage**: developed and tested on Linux; Windows/macOS paths are
   implemented but not exercised in CI.

@@ -1,7 +1,7 @@
 """marktux core — a Python port of VNote's ``vxcore`` backend.
 
 The package is deliberately Qt-free: it imports nothing from PyQt6 and can be
-used (and tested) headless. ``ui.core_bridge`` adapts it to Qt signals.
+used (and tested) headless. ``marktux.ui.core_bridge`` adapts it to Qt signals.
 
 Layout:
 

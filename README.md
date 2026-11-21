@@ -30,8 +30,11 @@ cd marktux
 python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+pip install -e libs/mtextedit --no-deps   # editor submodule
+pip install -e . --no-deps                # the marktux package
 
-python main.py                     # open the application
+python main.py                     # wrapper from the source tree
+python -m marktux                  # installed package
 python main.py /path/to/notebook   # open a notebook directory
 ```
 
@@ -39,8 +42,6 @@ python main.py /path/to/notebook   # open a notebook directory
 inside an already-open notebook that notebook is reused; otherwise its folder
 opens as a raw notebook, so the note gets a real tree entry and core's atomic
 save rather than being edited outside the backend. The last opened file is
-remembered in `QSettings` (`~/.config/marktux/marktux.conf`) and reopened at
-startup; if it no longer exists, the remembered path is dropped. The last opened file is
 remembered in `QSettings` (`~/.config/marktux/marktux.conf`) and reopened at
 startup; if it no longer exists, the remembered path is dropped.
 
@@ -54,40 +55,45 @@ cd libs/mtextedit && python examples/demo.py
 
 ```
 marktux/
-  main.py                # composition root: window, menus, docks, wiring
-  core/                  # Qt-free Python port of vxcore (stdlib only)
-    context.py           # CoreContext facade + lifecycle
-    notebook.py          # bundled/raw notebooks, registry, cache rebuild
-    folder.py            # folder tree (vx.json for bundled, disk for raw)
-    metadata.py          # per-notebook SQLite cache (vxcore schema v4, WAL)
-    buffer.py            # lazy buffers, save/dirty/external-change, backups
-    tags.py search.py workspace.py assets.py
-    config.py events.py concurrency.py models.py paths.py fsutil.py errors.py
-  ui/                    # thin Qt adapter over the Qt-free core
-    core_bridge.py       # CoreBridge(QObject): background calls -> Qt signals
-    tree_model.py        # NotebookNodeModel: lazy canFetchMore/fetchMore tree
+  main.py                # thin wrapper for `python main.py`
+  pyproject.toml         # setuptools + src layout
+  src/marktux/
+    __init__.py
+    __main__.py          # `python -m marktux`
+    app.py               # composition root: window, menus, docks, wiring
+    src/marktux/core/                # Qt-free Python port of vxcore (stdlib only)
+      context.py         # CoreContext facade + lifecycle
+      notebook.py        # bundled/raw notebooks, registry, cache rebuild
+      folder.py          # folder tree (vx.json for bundled, disk for raw)
+      metadata.py        # per-notebook SQLite cache (vxcore schema v4, WAL)
+      buffer.py          # lazy buffers, save/dirty/external-change, backups
+      tags.py search.py workspace.py assets.py
+      config.py events.py concurrency.py models.py paths.py fsutil.py errors.py
+    src/marktux/ui/                  # thin Qt adapter over the Qt-free core
+      core_bridge.py     # CoreBridge(QObject): background calls -> Qt signals
+      tree_model.py      # NotebookNodeModel: lazy canFetchMore/fetchMore tree
   tests/
     core/                # headless core tests + fixture builders
     ui/                  # offscreen Qt adapter tests
   libs/
-    mtextedit/           # reusable Markdown editor component (git submodule)
-      mtextedit/
-        editor.py        # MTextEdit -- QTextEdit surface with in-place preview
-        inplace.py       # code/table/image previews above their source block
-        layout.py        # custom QAbstractTextDocumentLayout (default)
-        highlighter.py   # fallback: block regions + inline highlighting
-        renderer/        # RenderWorker, RenderManager (debounce+coalesce+cancel)
-        outline.py       # AST-derived outline + click-to-navigate
-        find_replace.py  # in-file find & replace
-        linguistic/      # optional spell-check via pyqt6-linguistic-tools
-      examples/demo.py   # standalone editor demo
+    mtextedit/            # reusable Markdown editor (git submodule)
+      src/mtextedit/
+        editor.py         # MTextEdit -- QTextEdit surface with in-place preview
+        inplace.py        # code/table/image previews above their source block
+        layout.py         # custom QAbstractTextDocumentLayout (default)
+        highlighter.py    # fallback: block regions + inline highlighting
+        renderer/         # RenderWorker, RenderManager (debounce+coalesce+cancel)
+        outline.py        # AST-derived outline + click-to-navigate
+        find_replace.py   # in-file find & replace
+        linguistic/       # optional spell-check via pyqt6-linguistic-tools
+      examples/demo.py    # standalone editor demo
     m3/ QHotkey/ vxcore/ # reference forks; not imported by the application
   external/vnote/        # read-only upstream reference checkout (git-ignored)
 ```
 
 `mtextedit` is standalone and reusable — embed it as the Markdown note panel
 in any other PyQt6 project (e.g. the fourth panel of an e-Sword-like tool).
-It has no dependency on `core/`.
+It has no dependency on `src/marktux/core/`.
 
 ## Why it is fast (vs VNote)
 
@@ -100,7 +106,7 @@ It has no dependency on `core/`.
   instead of a second pane or a `QWebEngineView` reload per keystroke.
 * The notebook tree is **lazy** (`canFetchMore`/`fetchMore`) — opening a big
   notebook does not materialise the whole hierarchy.
-* Notebook structure is read one level at a time; `core/` keeps its own pool of
+* Notebook structure is read one level at a time; `src/marktux/core/` keeps its own pool of
   daemon threads so a slow disk or search never blocks the GUI thread.
 * Content search streams results in index-order batches over the notebook's
   `vx.json` index (like VNote, there is no content index to go stale). A
@@ -114,14 +120,14 @@ reservation via block margins, preview scope, async renderer, loop guard) are
 recorded in [`libs/mtextedit/DESIGN.md`](libs/mtextedit/DESIGN.md). App-level
 decisions are in [`DESIGN.md`](DESIGN.md); the short version:
 
-* **`vxcore` is reimplemented in Python, not wrapped.** `core/` is a Qt-free
+* **`vxcore` is reimplemented in Python, not wrapped.** `src/marktux/core/` is a Qt-free
   port of vxcore's *contract*: bundled notebooks (`vx_notebook/config.json`,
   `contents/**/vx.json`) and raw plain-directory notebooks, a per-notebook
   SQLite cache (vxcore schema v4, WAL), and background tasks with cancellation.
   Sync/encryption/recycle-bin are explicit non-goals.
-* **Qt-free core + thin adapter.** `core/` imports no PyQt6 and is fully
-  headless-testable; `ui/` turns core calls and events into Qt signals. The two
-  evolve independently, and `core/` is reusable in other projects.
+* **Qt-free core + thin adapter.** `src/marktux/core/` imports no PyQt6 and is fully
+  headless-testable; `src/marktux/ui/` turns core calls and events into Qt signals. The two
+  evolve independently, and `src/marktux/core/` is reusable in other projects.
 * **Lazy notebook tree.** `ui.NotebookNodeModel` loads folders on demand, so
   opening a large notebook does not materialise the whole hierarchy.
 * **Single-pane editor.** No side-by-side preview pane; rendered code/tables/
@@ -201,7 +207,7 @@ Implemented and running headless:
   restored notebooks and the current buffer reopen on startup; pasting an image
   stores it as a note asset and inserts a relative Markdown link; opening a
   Markdown file outside a notebook makes its folder a raw notebook (or reuses
-  the notebook that already contains it); `core/` has
+  the notebook that already contains it); `src/marktux/core/` has
   zero Qt imports (enforced by a test).
 * Linguistic download manager + spell-check.
 

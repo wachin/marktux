@@ -14,7 +14,7 @@ import pathlib
 import tempfile
 import unittest
 
-from core import CoreContext, NotebookType, NodeRef
+from marktux.core import CoreContext, NotebookType, NodeRef
 
 from .helpers import make_bundled, make_context, make_raw
 

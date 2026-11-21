@@ -12,7 +12,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from core import (
+from marktux.core import (
     CancellationToken,
     ContentQuery,
     CoreConfig,
@@ -276,7 +276,7 @@ class StreamingTest(unittest.TestCase):
     def test_cancel_within_chunk(self):
         # The simple backend checks the token before each file, so cancellation
         # takes effect inside a chunk, not only between chunks.
-        from core.search import SimpleSearchBackend, _File
+        from marktux.core.search import SimpleSearchBackend, _File
 
         backend = SimpleSearchBackend()
         query = ContentQuery("needle")
@@ -323,7 +323,7 @@ class BackendParityTest(unittest.TestCase):
         self.addCleanup(ctx.close)
         ctx.events.subscribe("search.backend_fallback", lambda n, p: seen.append(p))
         # Force the rg backend to appear unavailable.
-        import core.search as search_mod
+        import marktux.core.search as search_mod
         original = search_mod.RgSearchBackend.available.fget
         try:
             search_mod.RgSearchBackend.available = property(lambda self: False)

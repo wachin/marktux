@@ -12,7 +12,7 @@ import shutil
 import tempfile
 import unittest
 
-from core import (
+from marktux.core import (
     InvalidNameError,
     InvalidQueryError,
     ReadOnlyError,
@@ -144,7 +144,7 @@ class TagStoreSyncTest(unittest.TestCase):
         # the stamp beyond tags_synced_utc, then reload the config in memory.
         config = self.nb.config
         config.tags = [n for n in config.tags if n.name != "orphan"]
-        from core import TagNode
+        from marktux.core import TagNode
         config.tags.append(TagNode(name="fresh"))
         stamp = int(self.nb.store.get_meta("tags_synced_utc")) + 10
         config.tags_modified_utc = stamp

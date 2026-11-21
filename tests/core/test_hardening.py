@@ -23,9 +23,9 @@ import time
 import unittest
 from unittest import mock
 
-from core import BufferState, CoreContext, ContentQuery, SearchScope
-from core import fsutil
-from core.metadata import SCHEMA_VERSION, SqliteMetadataStore, StoreFolder
+from marktux.core import BufferState, CoreContext, ContentQuery, SearchScope
+from marktux.core import fsutil
+from marktux.core.metadata import SCHEMA_VERSION, SqliteMetadataStore, StoreFolder
 
 from .helpers import make_bundled, make_context
 
@@ -224,7 +224,7 @@ class CrashSafetyTest(unittest.TestCase):
         pathlib.Path(self.path).write_text("original\n", encoding="utf-8")
 
     def test_failed_replace_keeps_original_and_removes_temp(self):
-        with mock.patch("core.fsutil.os.replace",
+        with mock.patch("marktux.core.fsutil.os.replace",
                         side_effect=OSError("simulated crash")):
             with self.assertRaises(OSError):
                 fsutil.atomic_write_bytes(self.path, b"replacement\n")

@@ -14,7 +14,7 @@ import tempfile
 import unittest
 from unittest import mock
 
-from core import (
+from marktux.core import (
     BufferState,
     CoreContext,
     FileSource,
@@ -115,7 +115,7 @@ class BufferTest(unittest.TestCase):
         buf.content()
         buf.set_content("should not be written\n")
 
-        import core.fsutil as fsutil
+        import marktux.core.fsutil as fsutil
         real_replace = fsutil.os.replace
 
         def fail_replace(src, dst):

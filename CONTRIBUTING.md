@@ -36,13 +36,15 @@ read-only reference checkout and is git-ignored.
 python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+pip install -e libs/mtextedit --no-deps
+pip install -e . --no-deps
 ```
 
 `requirements.txt` installs the three runtime dependencies (`PyQt6`,
 `cmarkgfm` (VNote's cmark) and `pygments`). The editor component is used directly
 from
-`libs/mtextedit` by `main.py`; installing it separately is only needed if you
-embed it elsewhere:
+`libs/mtextedit` through `src/marktux/app.py` when running from a checkout.
+Install it editable for packaging and for the `python -m marktux` entry point:
 
 ```bash
 pip install -e libs/mtextedit
@@ -53,7 +55,8 @@ cd libs/mtextedit && pip install -e ".[webengine,linguistic]"
 ## 4. Run
 
 ```bash
-python main.py                      # open the application
+python main.py                      # source-tree wrapper
+python -m marktux                   # installed package
 python main.py /path/to/notebook    # open a notebook directory
 QT_QPA_PLATFORM=offscreen python main.py   # headless smoke test
 
@@ -65,10 +68,10 @@ cd libs/mtextedit && python examples/demo.py   # editor only
 Run the whole suite before every commit:
 
 ```bash
-# core + UI adapter (164 tests)
+# core + UI adapter
 python3 -m unittest discover -s tests -t .
 
-# editor component (10 tests)
+# editor component
 cd libs/mtextedit && python3 -m unittest discover -s tests -t .
 ```
 
@@ -82,8 +85,8 @@ QT_QPA_PLATFORM=offscreen python3 -m unittest tests.ui.test_bridge -v
 
 Two gotchas:
 
-* **Always pass `-t .`** when discovering from the repository root. Without it,
-  `tests/core/__init__.py` can shadow the real `core` package.
+* **Always pass `-t .`** when discovering from the repository root;
+  `tests/__init__.py` adds `src` and `libs/mtextedit/src` for source checkouts.
 * Qt tests need `QT_QPA_PLATFORM=offscreen` on machines without a display.
 
 ## 6. Repository conventions
@@ -93,28 +96,28 @@ Two gotchas:
 * `from __future__ import annotations` at the top of every module.
 * Type hints on public functions and methods; use built-in generics
   (`list[str]`, `dict[str, Any]`) and `X | None`.
-* Dataclasses for data (`core/models.py`), plain classes for behaviour.
+* Dataclasses for data (`src/marktux/core/models.py`), plain classes for behaviour.
 * Line length ~88; no formatter is enforced, match the surrounding code.
 * Imports: standard library, then third-party, then local — separated by blank
   lines.
 
 **Architecture**
 
-* `core/` must import **no Qt**. A test enforces this; never add a PyQt6 import
+* `src/marktux/core/` must import **no Qt**. A test enforces this; never add a PyQt6 import
   there, not even behind `try:`.
 * Slow work goes through `CoreBridge._submit()`; the GUI thread never scans
   disks, parses Markdown, decodes images or searches.
 * `vx.json` and notebook config are the source of truth; `metadata.db` is a
   derived cache and must be re-derivable.
 * All file writes go through `fsutil.atomic_write_bytes()`.
-* All paths that come from users or config go through `core/paths.py`
+* All paths that come from users or config go through `src/marktux/core/paths.py`
   (`resolve_inside`, `normalize_rel`); never concatenate onto a root.
-* Raise the specific exception from `core/errors.py`, not `Exception`.
-* New public names must be exported from `core/__init__.py`.
+* Raise the specific exception from `src/marktux/core/errors.py`, not `Exception`.
+* New public names must be exported from `src/marktux/core/__init__.py`.
 
 **Events**
 
-* Use the constants in `core/events.py`; payload keys stay camelCase to match
+* Use the constants in `src/marktux/core/events.py`; payload keys stay camelCase to match
   vxcore (`filePath`, `bufferId`, `notebookId`).
 * Listeners must tolerate exceptions: the bus logs and swallows them.
 
@@ -138,13 +141,13 @@ Two gotchas:
 
 ## 7. Adding a feature
 
-1. **Locate the layer.** Data/format → `core/models.py`; notebook lifecycle →
-   `core/notebook.py`; paths → `core/paths.py`; UI-only behaviour → `ui/` or
-   `main.py`; editor behaviour → `libs/mtextedit`.
+1. **Locate the layer.** Data/format → `src/marktux/core/models.py`; notebook lifecycle →
+   `src/marktux/core/notebook.py`; paths → `src/marktux/core/paths.py`; UI-only behaviour → `src/marktux/ui/` or
+   `src/marktux/app.py`; editor behaviour → `libs/mtextedit`.
 2. **Write the test** (or extend an existing one) under the matching suite.
 3. **Implement** the smallest change that satisfies it.
-4. **Export** new public API from `core/__init__.py`.
-5. **Bridge it** in `ui/core_bridge.py` if the UI needs it, as an off-thread
+4. **Export** new public API from `src/marktux/core/__init__.py`.
+5. **Bridge it** in `src/marktux/ui/core_bridge.py` if the UI needs it, as an off-thread
    call with a signal.
 6. **Run both suites** and, for UI changes, the app headless.
 7. **Update docs**: `ARCHITECTURE.md` (module/flow), `DESIGN.md` (a decision if

@@ -13,7 +13,7 @@ from typing import Any, cast
 
 from PyQt6.QtCore import QAbstractItemModel, QModelIndex, Qt, pyqtSignal
 
-from core import CoreContext, NodeRef, NotebookInfo
+from marktux.core import CoreContext, NodeRef, NotebookInfo
 
 log = logging.getLogger(__name__)
 

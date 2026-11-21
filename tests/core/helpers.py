@@ -13,7 +13,7 @@ import pathlib
 import tempfile
 from typing import Any
 
-from core import (
+from marktux.core import (
     CoreContext,
     FileRecord,
     FolderConfig,

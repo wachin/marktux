@@ -1,7 +1,7 @@
 # marktux — core port design decisions
 
 This document records the architectural decisions behind the Python port of
-vxcore (the `core/` package and the `ui/` Qt adapter). The editor component's
+vxcore (the `src/marktux/core/` package and the `src/marktux/ui/` Qt adapter). The editor component's
 own decisions live in [`libs/mtextedit/DESIGN.md`](libs/mtextedit/DESIGN.md).
 
 VNote's vxcore (`libs/vxcore`, ~61k LOC of C++) is the reference for behaviour
@@ -11,7 +11,7 @@ and on-disk formats; we reuse its *contract*, not its code.
 
 ## C1. Reimplement vxcore's contract, not the C ABI
 
-**Decision.** `core/` is a Pythonic reimplementation of vxcore's data model and
+**Decision.** `src/marktux/core/` is a Pythonic reimplementation of vxcore's data model and
 behaviour, not a ctypes wrapper. There is no `VxCoreContext*` handle, no 241
 `vxcore_*` functions, no JSON-in/JSON-out marshalling and no 37 error codes.
 Instead: dataclasses, a single `CoreContext` facade, and a Python exception
@@ -48,14 +48,14 @@ file/attachment structures match vxcore exactly.
 
 ## C3. Qt-free core + thin Qt adapter
 
-**Decision.** `core/` imports no PyQt6. It uses plain classes, `threading`,
-`concurrent.futures` and exceptions. `ui/core_bridge.py` (`CoreBridge(QObject)`)
+**Decision.** `src/marktux/core/` imports no PyQt6. It uses plain classes, `threading`,
+`concurrent.futures` and exceptions. `src/marktux/ui/core_bridge.py` (`CoreBridge(QObject)`)
 submits core calls to `ctx.tasks` and re-emits results as Qt signals;
-`ui/tree_model.py` is the Qt-only notebook tree model.
+`src/marktux/ui/tree_model.py` is the Qt-only notebook tree model.
 
 **Why.** The core must be importable and testable headless, and reusable in the
 e-Sword-like fourth-panel project, which should not drag in marktux's UI layer.
-A test AST-scans `core/` and fails on any Qt import.
+A test AST-scans `src/marktux/core/` and fails on any Qt import.
 
 **Consequences.** All thread-safety lives in core (per-notebook/per-buffer locks,
 WAL SQLite); the UI only ever crosses the boundary through signals. `list_children`
@@ -77,7 +77,7 @@ not needed for the core editing experience.
 ## C5. Caller-owned daemon task pool instead of caller-drained work queues
 
 **Decision.** vxcore exposes named work queues that the *caller's* threads must
-drain (`process_next`). Here `core/concurrency.py` (`TaskRunner`) owns a small
+drain (`process_next`). Here `src/marktux/core/concurrency.py` (`TaskRunner`) owns a small
 fixed pool of **daemon** threads and returns a `Task` handle with a
 `CancellationToken`. Long operations (load/save/rebuild/search/CRUD) are
 offloaded; trivial ones (list children, set text, session mutations) stay inline.
@@ -260,4 +260,4 @@ the same files.
 
 * Porting C++ sync/encryption/recycle-bin/transfer code.
 * A C ABI or JSON-string marshalling layer.
-* Importing PyQt6 anywhere under `core/`.
+* Importing PyQt6 anywhere under `src/marktux/core/`.

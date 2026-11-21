@@ -35,12 +35,12 @@ import json, os, sys, time
 root, app_dir, local_dir, settings_path = (sys.argv[1], sys.argv[2],
                                            sys.argv[3], sys.argv[4])
 raw_file, bundled_file, bundled_root, missing = sys.argv[5:9]
-sys.path.insert(0, root)
+sys.path.insert(0, os.path.join(root, "src"))
 
 from PyQt6.QtCore import QEventLoop, QSettings, QTimer
 from PyQt6.QtWidgets import QApplication
-import main as app_main
-from core import CoreContext
+from marktux.app import MainWindow
+from marktux.core import CoreContext
 
 def pump(ms):
     loop = QEventLoop()
@@ -59,7 +59,7 @@ ctx = CoreContext(app_data_dir=app_dir, local_data_dir=local_dir,
                   recover_session=False).open()
 app = QApplication([])
 settings = QSettings(settings_path, QSettings.Format.IniFormat)
-win = app_main.MainWindow(ctx=ctx, settings=settings)
+win = MainWindow(ctx=ctx, settings=settings)
 
 out = {"menu": [a.text() for a in win.menuBar().actions()[0].menu().actions()],
        "window_name": win.accessibleName()}

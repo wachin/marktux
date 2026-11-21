@@ -19,7 +19,7 @@ from typing import Any, Callable
 
 from PyQt6.QtCore import QObject, pyqtSignal
 
-from core import CancelledError, CancellationToken, CoreContext
+from marktux.core import CancelledError, CancellationToken, CoreContext
 
 log = logging.getLogger(__name__)
 

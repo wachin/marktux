@@ -10,14 +10,14 @@ import unittest
 
 from PyQt6.QtCore import QCoreApplication, QEventLoop, Qt, QTimer
 
-from core import (
+from marktux.core import (
     ContentQuery,
     CoreContext,
     NotebookInfo,
     NotebookType,
     SearchScope,
 )
-from ui import CoreBridge, NotebookNodeModel
+from marktux.ui import CoreBridge, NotebookNodeModel
 
 from ..core.helpers import make_bundled, make_raw
 

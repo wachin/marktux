@@ -28,7 +28,7 @@ Paste this into a new agent session:
 > (cd libs/mtextedit && python3 -m unittest discover -s tests -t .)
 > ```
 >
-> Follow the non-negotiable rules in `AGENTS.md`: `core/` stays Qt-free,
+> Follow the non-negotiable rules in `AGENTS.md`: `src/marktux/core/` stays Qt-free,
 > `vx.json` is the source of truth, writes are atomic, paths are contained, and
 > slow work stays off the GUI thread. Do not edit `external/vnote/` or the
 > `libs/*` submodules unless the task requires it. Before reporting success,
@@ -44,11 +44,13 @@ For a specific task, append:
 ## Repository map
 
 ```
-main.py                     composition root (QMainWindow + wiring)
-core/                       Qt-free backend — stdlib only
-ui/core_bridge.py           Qt adapter: off-thread calls -> signals
-ui/tree_model.py            lazy notebook tree model
-libs/mtextedit/             standalone editor package (git submodule)
+main.py                     thin wrapper for `python main.py`
+pyproject.toml              setuptools + src layout
+src/marktux/app.py          composition root (QMainWindow + wiring)
+src/marktux/core/           Qt-free backend — stdlib only
+src/marktux/ui/core_bridge.py  Qt adapter: off-thread calls -> signals
+src/marktux/ui/tree_model.py   lazy notebook tree model
+libs/mtextedit/             standalone editor (git submodule, src/mtextedit)
 tests/core/                 headless backend tests + fixtures
 tests/ui/                   offscreen Qt adapter tests
 external/vnote/             read-only upstream reference, git-ignored
@@ -61,6 +63,8 @@ external/vnote/             read-only upstream reference, git-ignored
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 git submodule update --init --recursive
+pip install -e libs/mtextedit --no-deps
+pip install -e . --no-deps
 
 # full verification (run before claiming success)
 python3 -m unittest discover -s tests -t .
@@ -74,26 +78,26 @@ QT_QPA_PLATFORM=offscreen python3 -m unittest tests.ui.test_bridge -v
 timeout 5 env QT_QPA_PLATFORM=offscreen python3 main.py
 ```
 
-Always pass `-t .` to discovery from the repository root, otherwise
-`tests/core/__init__.py` can shadow the real `core` package.
+Run discovery from the repository root with `-t .`; `tests/__init__.py`
+adds `src` and `libs/mtextedit/src` to the path for source checkouts.
 
 ## Non-negotiable rules
 
-1. **`core/` imports no Qt.** Not even inside `try:` or `TYPE_CHECKING`. A test
+1. **`src/marktux/core/` imports no Qt.** Not even inside `try:` or `TYPE_CHECKING`. A test
    AST-scans the package.
 2. **`vx.json` / notebook config are the source of truth.** SQLite
    (`metadata.db`) is a disposable cache; anything you store there must be
    re-derivable, except `notebook_metadata`.
-3. **Every file write is atomic** via `core/fsutil.atomic_write_bytes()`
+3. **Every file write is atomic** via `src/marktux/core/fsutil.atomic_write_bytes()`
    (temp file in the destination directory, `fsync`, `os.replace`).
-4. **Contain every path.** Use `core/paths.py` (`resolve_inside`,
+4. **Contain every path.** Use `src/marktux/core/paths.py` (`resolve_inside`,
    `normalize_rel`, `validate_name`); never join untrusted input onto a root.
 5. **The GUI thread never blocks on I/O.** Add slow operations to
    `CoreBridge._submit()` and return via a signal.
 6. **Cancellation is cooperative.** Long loops take a `CancellationToken` and
    call `raise_if_cancelled()` at file/chunk boundaries.
-7. **Raise `core.errors` types**, not `Exception`; export new public API from
-   `core/__init__.py`.
+7. **Raise `src/marktux/core/errors.py` types**, not `Exception`; export new
+   public API from `src/marktux/core/__init__.py`.
 8. **Preserve on-disk compatibility.** Millisecond timestamps, `/`-separated
    relative paths, camelCase event payloads, schema v4, unknown JSON keys in
    `extra`.
@@ -102,20 +106,20 @@ Always pass `-t .` to discovery from the repository root, otherwise
 
 | Task | Location |
 |---|---|
-| JSON shapes, dataclasses, enums | `core/models.py` |
-| Notebook open/close, cache rebuild, registry | `core/notebook.py` |
-| Folder/file CRUD, `vx.json` handling, attachments | `core/folder.py` |
-| Path algebra and containment | `core/paths.py` |
-| Atomic writes, encodings, ids, clocks | `core/fsutil.py` |
-| SQLite schema and queries | `core/metadata.py` |
-| Buffers, save/dirty, external change | `core/buffer.py` |
-| Tags | `core/tags.py` |
-| Search backends and streaming | `core/search.py` |
-| Workspaces and `vxsession.json` | `core/workspace.py` |
-| Assets | `core/assets.py` |
-| Async UI calls | `ui/core_bridge.py` |
-| Tree behaviour | `ui/tree_model.py` |
-| Window, menus, docks | `main.py` |
+| JSON shapes, dataclasses, enums | `src/marktux/core/models.py` |
+| Notebook open/close, cache rebuild, registry | `src/marktux/core/notebook.py` |
+| Folder/file CRUD, `vx.json` handling, attachments | `src/marktux/core/folder.py` |
+| Path algebra and containment | `src/marktux/core/paths.py` |
+| Atomic writes, encodings, ids, clocks | `src/marktux/core/fsutil.py` |
+| SQLite schema and queries | `src/marktux/core/metadata.py` |
+| Buffers, save/dirty, external change | `src/marktux/core/buffer.py` |
+| Tags | `src/marktux/core/tags.py` |
+| Search backends and streaming | `src/marktux/core/search.py` |
+| Workspaces and `vxsession.json` | `src/marktux/core/workspace.py` |
+| Assets | `src/marktux/core/assets.py` |
+| Async UI calls | `src/marktux/ui/core_bridge.py` |
+| Tree behaviour | `src/marktux/ui/tree_model.py` |
+| Window, menus, docks | `src/marktux/app.py` |
 | Editor, preview, outline, find/replace | `libs/mtextedit/` |
 
 ## Workflow
@@ -148,7 +152,8 @@ Always pass `-t .` to discovery from the repository root, otherwise
 
 * Add a dependency without updating `requirements.txt` (and
   `libs/mtextedit/pyproject.toml` for editor-only dependencies).
-* Move backend logic into `ui/` or `main.py` for convenience.
+* Move backend logic into `src/marktux/ui/` or `src/marktux/app.py` for
+  convenience.
 * Write window geometry or UI state into `vxsession.json`; that file is owned by
   core. Use `QSettings` for app preferences.
 * Commit generated files (`__pycache__`, `.venv`, build output) or user

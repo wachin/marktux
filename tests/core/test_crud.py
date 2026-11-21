@@ -13,7 +13,7 @@ import tempfile
 import unittest
 from unittest import mock
 
-from core import (
+from marktux.core import (
     CoreContext,
     CoreError,
     InvalidNameError,
