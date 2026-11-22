@@ -29,6 +29,7 @@ if _LOCAL_EDITOR.is_dir() and str(_LOCAL_EDITOR) not in sys.path:
     sys.path.insert(0, str(_LOCAL_EDITOR))
 
 from PyQt6.QtCore import QBuffer, QByteArray, QIODevice, QSettings, Qt
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QApplication,
     QDockWidget,
@@ -816,12 +817,25 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage("Spell check disabled")
 
 
+def app_icon() -> QIcon:
+    """Return the MarkTux application icon from the bundled logo data."""
+    logo_dir = Path(__file__).resolve().parent / "core" / "logo"
+    for name in ("marktux.png", "marktux.svg"):
+        path = logo_dir / name
+        if path.is_file():
+            return QIcon(str(path))
+    return QIcon()
+
+
 def main():
     app = QApplication(sys.argv)
     app.setApplicationName("MarkTux")
     app.setApplicationDisplayName("MarkTux")
     app.setOrganizationName("marktux")
+    app.setDesktopFileName("marktux")
+    app.setWindowIcon(app_icon())
     win = MainWindow()
+    win.setWindowIcon(app.windowIcon())
     app.aboutToQuit.connect(win._shutdown_linguistic)
     app.aboutToQuit.connect(win._shutdown_core)
     win.show()
