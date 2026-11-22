@@ -18,30 +18,27 @@ The cmark sources are vendored as a git submodule at
 `libs/mtextedit/libs/cmarkgfm/libs/cmark`; its `COPYING` file ships with
 the submodule, and the binding's `LICENSE.txt` ships with `cmarkgfm`.
 
-## VNote assets
+## VNote UI icons
 
-These assets were copied from VNote at commit
-`c966a995044f975d92a59453ec46738bce0e8282`:
+The UI action icons in `src/marktux/core/icons/` were copied from VNote's
+`src/data/core/icons/` at commit
+`c966a995044f975d92a59453ec46738bce0e8282`. They are redistributed with
+attribution:
 
-| Local path | Upstream path |
-|---|---|
-| `src/marktux/core/icons/` | `src/data/core/icons/` |
-| `src/marktux/core/logo/` | `src/data/core/logo/` |
-| `src/marktux/core/translations/` | `src/data/core/translations/` |
-
-They are redistributed with attribution:
-
-- **VNote**, its logo and its translation catalogs: **LGPL-3.0**, copyright
-  the VNote authors.
+- **VNote-specific icons**: **LGPL-3.0**, copyright the VNote authors.
 - **Icons derived from Lucide**: **ISC**, copyright Lucide contributors (and
-  Feather contributors for the inherited icons). Most files in `icons/` fall
-  into this group; VNote's per-icon mapping is linked from
+  Feather contributors for the inherited icons). Most files fall into this
+  group; VNote's per-icon mapping is linked from
   [`src/marktux/core/icons/README.md`](src/marktux/core/icons/README.md).
 
-The full license texts and per-directory provenance notes ship with the assets
-in [`src/marktux/core/LICENSES/`](src/marktux/core/LICENSES/). The files are
-copied unmodified; MarkTux does not claim authorship of them, and the VNote
-name/logo does not imply endorsement.
+The full license texts ship in
+[`src/marktux/core/LICENSES/`](src/marktux/core/LICENSES/). The SVG files are
+copied unmodified; MarkTux does not claim authorship of them.
+
+VNote's **application** icons (`vnote.icns`, `vnote.ico`, `vnote.rc`), its
+**logo**, and its **translation catalogs** are intentionally not bundled.
+MarkTux uses its own logo in `src/marktux/core/logo/` and reserves
+`src/marktux/core/translations/` for its own catalogs.
 
 `external/vnote/` remains a read-only checkout (**LGPL-3.0**) kept for research
 and comparison. No VNote source code is copied into MarkTux.

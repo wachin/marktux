@@ -240,10 +240,11 @@ if you work with an AI agent, point it at [`AGENTS.md`](AGENTS.md).
 
 ## Acknowledgements
 
-The UI icons, logo and translation catalogs under `src/marktux/core/` are
-reused from [VNote](https://github.com/vnotex/vnote) (LGPL-3.0); most icons are
-Lucide-derived (ISC). See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and
-the per-directory notes in `src/marktux/core/` for provenance and license texts.
+The UI action icons under `src/marktux/core/icons/` are reused from
+[VNote](https://github.com/vnotex/vnote) (LGPL-3.0); most are Lucide-derived
+(ISC). See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and
+[`src/marktux/core/icons/README.md`](src/marktux/core/icons/README.md).
+The MarkTux logo and translations are MarkTux's own.
 
 ## License
 

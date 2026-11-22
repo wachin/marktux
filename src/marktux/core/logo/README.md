@@ -1,12 +1,23 @@
-# VNote logo
+# MarkTux application logo
 
-The files in this directory come from VNote's `src/data/core/logo/` at commit
-`c966a995044f975d92a59453ec46738bce0e8282`.
+This directory is for **MarkTux's own** application icon, not VNote's logo.
 
-- Upstream: <https://github.com/vnotex/vnote/tree/c966a995044f975d92a59453ec46738bce0e8282/src/data/core/logo>
-- License: **LGPL-3.0** — see [`../LICENSES/LGPL-3.0.txt`](../LICENSES/LGPL-3.0.txt).
-- Copyright: the VNote authors.
+1. Put the master artwork here as `marktux.svg`.
+2. Generate every platform size:
 
-The VNote name and logo identify the origin of these assets. Their inclusion
-does not imply that VNote endorses MarkTux; do not present MarkTux as an
-official VNote product.
+   ```bash
+   python scripts/build_app_icons.py
+   ```
+
+The script reads `marktux.svg` and writes:
+
+```
+16x16/marktux.png … 256x256/marktux.png
+marktux.png
+icon.iconset/icon_*.png
+marktux.ico          (if Pillow is installed)
+marktux.icns         (if Pillow supports ICNS)
+```
+
+The source SVG is the only artwork that should be edited by hand. The PNG/ICO/
+ICNS files are generated outputs.

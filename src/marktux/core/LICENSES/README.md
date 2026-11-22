@@ -1,13 +1,13 @@
-# Licenses for the bundled VNote assets
+# Licenses for the bundled VNote icons
 
-The files under `src/marktux/core/{icons,logo,translations}/` come from VNote
-and keep their upstream licenses:
+Only the UI action icons in `src/marktux/core/icons/` come from VNote. The
+MarkTux logo and translations are MarkTux's own and are not covered here.
 
-- **LGPL-3.0** — VNote itself, its logo and its translation catalogs.
+- **LGPL-3.0** — VNote-specific icons and VNote itself.
   Full text: [`LGPL-3.0.txt`](LGPL-3.0.txt).
 - **ISC** — the Lucide-derived icons. Full text:
   [`Lucide-ISC.txt`](Lucide-ISC.txt). Lucide's own notice also carries the
   Feather-derived icons' MIT notice.
 
-The per-directory `README.md` files record the exact upstream paths and the
-VNote commit used for the copy.
+VNote's per-icon provenance is documented in
+`src/marktux/core/icons/README.md`.
