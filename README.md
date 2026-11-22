@@ -61,7 +61,11 @@ marktux/
     __init__.py
     __main__.py          # `python -m marktux`
     app.py               # composition root: window, menus, docks, wiring
-    src/marktux/core/                # Qt-free Python port of vxcore (stdlib only)
+    core/                # Qt-free Python port of vxcore (stdlib only)
+      icons/             # VNote UI action icons (LGPL-3.0 / ISC)
+      logo/              # MarkTux logo: SVG master + generated PNG/ICO/ICNS
+      translations/      # reserved for MarkTux catalogs
+      LICENSES/          # license texts for the bundled icons
       context.py         # CoreContext facade + lifecycle
       notebook.py        # bundled/raw notebooks, registry, cache rebuild
       folder.py          # folder tree (vx.json for bundled, disk for raw)
@@ -69,7 +73,7 @@ marktux/
       buffer.py          # lazy buffers, save/dirty/external-change, backups
       tags.py search.py workspace.py assets.py
       config.py events.py concurrency.py models.py paths.py fsutil.py errors.py
-    src/marktux/ui/                  # thin Qt adapter over the Qt-free core
+    ui/                  # thin Qt adapter over the Qt-free core
       core_bridge.py     # CoreBridge(QObject): background calls -> Qt signals
       tree_model.py      # NotebookNodeModel: lazy canFetchMore/fetchMore tree
   tests/
@@ -128,7 +132,7 @@ decisions are in [`DESIGN.md`](DESIGN.md); the short version:
 * **Qt-free core + thin adapter.** `src/marktux/core/` imports no PyQt6 and is fully
   headless-testable; `src/marktux/ui/` turns core calls and events into Qt signals. The two
   evolve independently, and `src/marktux/core/` is reusable in other projects.
-* **Lazy notebook tree.** `ui.NotebookNodeModel` loads folders on demand, so
+* **Lazy notebook tree.** `marktux.ui.NotebookNodeModel` loads folders on demand, so
   opening a large notebook does not materialise the whole hierarchy.
 * **Single-pane editor.** No side-by-side preview pane; rendered code/tables/
   images appear above their source inside the editor.
@@ -209,13 +213,17 @@ Implemented and running headless:
   Markdown file outside a notebook makes its folder a raw notebook (or reuses
   the notebook that already contains it); `src/marktux/core/` has
   zero Qt imports (enforced by a test).
+* The bundled MarkTux logo is applied to `QApplication` and `MainWindow`
+  (`src/marktux/app.py:app_icon`).
 * Linguistic download manager + spell-check.
 
 Not yet implemented:
 
 * Workspace switching in the UI (workspaces exist in core; the current one is
   restored), settings dialog, recent-notebooks list, multi-window, export/print.
-* Application packaging/installer — run from a source checkout for now.
+* Application packaging/installer — there is no generated `.deb`,
+  AppImage or platform installer yet; run from a source checkout or an
+  editable install (`pip install -e .`).
 * Editor roadmap: KaTeX math preview, Obsidian-style inline rendering.
 * Windows/macOS are implemented but not exercised in CI (Linux is).
 
