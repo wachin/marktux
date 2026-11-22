@@ -91,7 +91,7 @@ marktux/
         find_replace.py   # in-file find & replace
         linguistic/       # optional spell-check via pyqt6-linguistic-tools
       examples/demo.py    # standalone editor demo
-    m3/ QHotkey/ vxcore/ # reference forks; not imported by the application
+    m3/                  # reference fork (mind maps); not imported
   external/vnote/        # read-only upstream reference checkout (git-ignored)
 ```
 
@@ -125,7 +125,7 @@ recorded in [`libs/mtextedit/DESIGN.md`](libs/mtextedit/DESIGN.md). App-level
 decisions are in [`DESIGN.md`](DESIGN.md); the short version:
 
 * **`vxcore` is reimplemented in Python, not wrapped.** `src/marktux/core/` is a Qt-free
-  port of vxcore's *contract*: bundled notebooks (`vx_notebook/config.json`,
+  port of [vxcore](https://github.com/vnotex/vxcore)'s *contract*: bundled notebooks (`vx_notebook/config.json`,
   `contents/**/vx.json`) and raw plain-directory notebooks, a per-notebook
   SQLite cache (vxcore schema v4, WAL), and background tasks with cancellation.
   Sync/encryption/recycle-bin are explicit non-goals.
@@ -136,8 +136,8 @@ decisions are in [`DESIGN.md`](DESIGN.md); the short version:
   opening a large notebook does not materialise the whole hierarchy.
 * **Single-pane editor.** No side-by-side preview pane; rendered code/tables/
   images appear above their source inside the editor.
-* **`m3` and `QHotkey` are out of scope** for the editor; app shortcuts use
-  PyQt6 `QShortcut`, and OS-wide hotkeys would use `pynput` only if needed.
+* **`m3` is out of scope** for the editor; app shortcuts use PyQt6
+  `QShortcut`, and OS-wide hotkeys would use `pynput` only if needed.
 * **Optional, not default:** `QWebEngineView` preview and the linguistic
   toolkit's heavy engines are loaded only on demand.
 
@@ -253,6 +253,10 @@ The UI action icons under `src/marktux/core/icons/` are reused from
 (ISC). See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and
 [`src/marktux/core/icons/README.md`](src/marktux/core/icons/README.md).
 The MarkTux logo and translations are MarkTux's own.
+
+The Python core reimplements the notebook contract of
+[vxcore](https://github.com/vnotex/vxcore) (MIT, VNoteX); no vxcore code is
+linked or bundled. See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
 ## License
 

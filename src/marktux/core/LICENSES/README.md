@@ -5,6 +5,8 @@ MarkTux logo and translations are MarkTux's own and are not covered here.
 
 - **LGPL-3.0** — VNote-specific icons and VNote itself.
   Full text: [`LGPL-3.0.txt`](LGPL-3.0.txt).
+- **MIT** — vxcore's design/on-disk contract; see
+  [`vxcore-MIT.txt`](vxcore-MIT.txt).
 - **ISC** — the Lucide-derived icons. Full text:
   [`Lucide-ISC.txt`](Lucide-ISC.txt). Lucide's own notice also carries the
   Feather-derived icons' MIT notice.

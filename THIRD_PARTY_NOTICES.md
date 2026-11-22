@@ -50,6 +50,19 @@ theme, copied unmodified from
 **LGPL-3.0** (copyright the VNote authors). `mtextedit` itself remains MIT; that
 file keeps its own license. The theme loader is original code.
 
+## Reference design: vxcore
+
+MarkTux's `src/marktux/core/` is an independent Python reimplementation of the
+notebook contract and data formats of **vxcore**, the C/C++ backend for VNote:
+
+- Upstream: <https://github.com/vnotex/vxcore>
+- Copyright (c) 2025 VNoteX
+- License: **MIT** — the upstream text is kept in
+  [`src/marktux/core/LICENSES/vxcore-MIT.txt`](src/marktux/core/LICENSES/vxcore-MIT.txt).
+
+No vxcore source code is linked, copied, or redistributed in MarkTux; this is a
+credit for the design and on-disk contract that the Python core follows.
+
 ## Colour palette
 
 `libs/mtextedit/mtextedit/code_style.py` uses colour values from

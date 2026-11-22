@@ -1,12 +1,6 @@
 [submodule "libs/mtextedit"]
 	path = libs/mtextedit
 	url = https://github.com/wachin/mtextedit
-[submodule "libs/QHotkey"]
-	path = libs/QHotkey
-	url = https://github.com/wachin/QHotkey
 [submodule "libs/m3"]
 	path = libs/m3
 	url = https://github.com/wachin/m3
-[submodule "libs/vxcore"]
-	path = libs/vxcore
-	url = https://github.com/wachin/vxcore

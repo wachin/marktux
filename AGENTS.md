@@ -143,8 +143,8 @@ adds `src` and `libs/mtextedit/src` to the path for source checkouts.
 * `libs/mtextedit` is a separate repository. Editor changes must be committed
   there first, then the pointer bumped here (`git add libs/mtextedit`). Do not
   fold editor edits into an app commit silently.
-* `libs/QHotkey`, `libs/m3`, `libs/vxcore` are reference forks; the app does not
-  import them. Do not modify them for app features.
+* `libs/m3` is a reference fork for mind maps; the app does not import it.
+  Do not modify it for app features.
 * `external/vnote/` is an upstream checkout for reading. Never edit it, never
   add it to git (it is ignored).
 

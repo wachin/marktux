@@ -26,9 +26,9 @@ Already cloned without submodules?
 git submodule update --init --recursive
 ```
 
-`libs/mtextedit` is required. `libs/QHotkey`, `libs/m3` and `libs/vxcore` are
-reference forks and are not imported by the application; `external/vnote/` is a
-read-only reference checkout and is git-ignored.
+`libs/mtextedit` is required. `libs/m3` is a reference fork for mind maps and
+is not imported by the application; `external/vnote/` is a read-only reference
+checkout and is git-ignored.
 
 ## 3. Set up a virtual environment
 
@@ -156,8 +156,7 @@ Two gotchas:
 
 ## 8. Working with submodules
 
-`libs/mtextedit`, `libs/QHotkey`, `libs/m3` and `libs/vxcore` are separate
-repositories. Changes to the editor must be committed **in `libs/mtextedit`
+`libs/mtextedit` and `libs/m3` are separate repositories. Changes to the editor must be committed **in `libs/mtextedit`
 first**, pushed there, and then the submodule pointer is bumped in this
 repository:
 
